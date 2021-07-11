@@ -7,6 +7,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.test.annotation.Commit;
 import org.springframework.transaction.annotation.Transactional;
 import org.zerock.ex2.entity.Memo;
 
@@ -118,21 +121,32 @@ class MemoRepositoryTest {
     }
 
     @Test
-    void testQueryMethods(){ //쿼리 메소드
-        List<Memo> list=memoRepository.findByMnoBetweenOrderByMnoDesc(70L,80L);
+    void testQueryMethods() { //쿼리 메소드
+        List<Memo> list = memoRepository.findByMnoBetweenOrderByMnoDesc(70L, 80L);
 
-        for(Memo memo: list){
+        for (Memo memo : list) {
             System.out.println(memo);
         }
     }
 
     @Test
-    void testQueryMethodWithPageable(){
-        Pageable pageable = PageRequest.of(0,10,Sort.by("mno").descending());
-        Page<Memo> result =  memoRepository.findByMnoBetween(10L,50L,pageable);
+    void testQueryMethodWithPageable() {
+        Pageable pageable = PageRequest.of(0, 10, Sort.by("mno").descending());
+        Page<Memo> result = memoRepository.findByMnoBetween(10L, 50L, pageable);
 
         result.get().forEach(System.out::println);
     }
 
+    @Test
+    @Transactional//Deleteby는 select 문으로 엔티티를 가져오고 삭제하는 작업이 같이 이루어 지기때문에 없으면 에러
+    @Commit      //최종 결과를 커밋 안하면 롤백 처리되서 결과가 반영되지 않는다
+    void testDeleteQueryMethods(){
+        memoRepository.deleteMemoByMnoLessThan(10L);
+    }
 
-}
+
+
+
+    }
+
+
